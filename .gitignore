@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+.venv/
+
+# Django
+*.log
+staticfiles/
+
+# Database
+db.sqlite3
+db.sqlite3-journal
+db.sqlite3.backup
+*.sqlite3
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+# Student data - local files
+etudiants.csv
+liste_etudiants.csv

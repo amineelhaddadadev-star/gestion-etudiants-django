@@ -1,0 +1,366 @@
+```html
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ajouter un étudiant - CMC</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-slate-950 text-white">
+
+    <main class="max-w-3xl mx-auto px-4 py-10">
+
+        <!-- En-tête -->
+        <div class="mb-8">
+
+            <a href="{% url 'liste_etudiants' %}"
+               class="text-emerald-400 hover:text-emerald-300 text-sm">
+                ← Retour à la liste
+            </a>
+
+            <h1 class="text-3xl font-bold mt-4">
+                Ajouter un étudiant
+            </h1>
+
+            <p class="text-slate-400 mt-2">
+                Remplissez les informations de l'étudiant.
+            </p>
+
+        </div>
+
+        <!-- Formulaire -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-xl">
+
+            {% if error %}
+                <div class="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <form method="POST"
+                  action="{% url 'ajouter_etudiant' %}"
+                  id="form-etudiant">
+
+                {% csrf_token %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Nom -->
+                    <div>
+                        <label for="nom"
+                               class="block text-xs font-semibold text-slate-300 uppercase mb-2">
+                            Nom
+                        </label>
+
+                        <input
+                            type="text"
+                            id="nom"
+                            name="nom"
+                            value="{{ request.POST.nom|default:'' }}"
+                            required
+                            placeholder="Nom de famille"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        >
+                    </div>
+
+                    <!-- Prénom -->
+                    <div>
+                        <label for="prenom"
+                               class="block text-xs font-semibold text-slate-300 uppercase mb-2">
+                            Prénom
+                        </label>
+
+                        <input
+                            type="text"
+                            id="prenom"
+                            name="prenom"
+                            value="{{ request.POST.prenom|default:'' }}"
+                            required
+                            placeholder="Prénom"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        >
+                    </div>
+
+                    <!-- Âge -->
+                    <div>
+                        <label for="age"
+                               class="block text-xs font-semibold text-slate-300 uppercase mb-2">
+                            Âge
+                        </label>
+
+                        <input
+                            type="number"
+                            id="age"
+                            name="age"
+                            min="1"
+                            value="{{ request.POST.age|default:'' }}"
+                            required
+                            placeholder="Âge"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        >
+                    </div>
+
+                    <!-- Date de naissance -->
+                    <div>
+                        <label for="date_naissance"
+                               class="block text-xs font-semibold text-slate-300 uppercase mb-2">
+                            Date de naissance
+                        </label>
+
+                        <input
+                            type="date"
+                            id="date_naissance"
+                            name="date_naissance"
+                            value="{{ request.POST.date_naissance|default:'' }}"
+                            required
+                            class="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        >
+                    </div>
+
+                    <!-- Spécialité -->
+                    <div class="md:col-span-2">
+
+                        <label for="specialite"
+                               class="block text-xs font-semibold text-slate-300 uppercase mb-2">
+                            Spécialité et année
+                        </label>
+
+                        <select
+                            id="specialite"
+                            name="specialite"
+                            required
+                            class="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        >
+
+                            <option value="">-- Choisissez une spécialité --</option>
+
+                            {% for spec in specialites %}
+
+                                <option
+                                    value="{{ spec.id }}"
+                                    data-nom="{{ spec.nom|lower }}"
+                                    {% if request.POST.specialite == spec.id|stringformat:"s" %}selected{% endif %}
+                                >
+                                    {{ spec.nom }}
+                                    {% if spec.annee %}
+                                        - {{ spec.annee.nom }}
+                                    {% endif %}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                    <!-- Option -->
+                    <div
+                        id="option-container"
+                        class="md:col-span-2"
+                        style="display: none;"
+                    >
+
+                        <label for="option"
+                               class="block text-xs font-semibold text-slate-300 uppercase mb-2">
+                            Option <span class="text-red-400">*</span>
+                        </label>
+
+                        <select
+                            id="option"
+                            name="option"
+                            class="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        >
+
+                            <option value="">-- Choisissez une option --</option>
+
+                            {% for opt in options %}
+
+                                <option
+                                    value="{{ opt.id }}"
+                                    data-specialite="{{ opt.specialite_id }}"
+                                    {% if request.POST.option == opt.id|stringformat:"s" %}selected{% endif %}
+                                >
+                                    {{ opt.nom }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                        <p id="option-error"
+                           class="hidden text-red-400 text-sm mt-2">
+                            Veuillez choisir une option pour Informatique.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- Boutons -->
+                <div class="flex flex-col sm:flex-row gap-3 mt-8">
+
+                    <button
+                        type="submit"
+                        class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl py-3 px-5 transition"
+                    >
+                        Ajouter l'étudiant
+                    </button>
+
+                    <a
+                        href="{% url 'liste_etudiants' %}"
+                        class="flex-1 text-center bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold rounded-xl py-3 px-5 transition"
+                    >
+                        Annuler
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+    <!-- Gestion dynamique des options -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const specialiteSelect =
+                document.getElementById("specialite");
+
+            const optionContainer =
+                document.getElementById("option-container");
+
+            const optionSelect =
+                document.getElementById("option");
+
+            const optionError =
+                document.getElementById("option-error");
+
+            const form =
+                document.getElementById("form-etudiant");
+
+            function mettreAJourOptions() {
+
+                const selected =
+                    specialiteSelect.options[
+                        specialiteSelect.selectedIndex
+                    ];
+
+                const nomSpecialite = selected
+                    ? selected.dataset.nom
+                    : "";
+
+                const specialiteId = specialiteSelect.value;
+
+                const estInformatique =
+                    nomSpecialite === "informatique";
+
+                let optionDisponible = false;
+
+                Array.from(optionSelect.options).forEach(
+                    function (option, index) {
+
+                        // Première option : placeholder
+                        if (index === 0) {
+                            option.hidden = false;
+                            option.disabled = false;
+                            return;
+                        }
+
+                        const correspond =
+                            option.dataset.specialite === specialiteId;
+
+                        option.hidden = !correspond;
+                        option.disabled = !correspond;
+
+                        if (correspond) {
+                            optionDisponible = true;
+                        }
+                    }
+                );
+
+                if (estInformatique) {
+
+                    optionContainer.style.display = "block";
+
+                    optionSelect.disabled = false;
+                    optionSelect.required = true;
+
+                    if (!optionDisponible) {
+                        optionError.textContent =
+                            "Aucune option n'est configurée pour cette spécialité.";
+
+                        optionError.classList.remove("hidden");
+                    } else {
+                        optionError.classList.add("hidden");
+                    }
+
+                } else {
+
+                    optionContainer.style.display = "none";
+
+                    optionSelect.required = false;
+                    optionSelect.value = "";
+                    optionSelect.disabled = true;
+
+                    optionError.classList.add("hidden");
+                }
+            }
+
+            specialiteSelect.addEventListener(
+                "change",
+                function () {
+                    optionSelect.value = "";
+                    mettreAJourOptions();
+                }
+            );
+
+            optionSelect.addEventListener(
+                "change",
+                function () {
+                    if (optionSelect.value) {
+                        optionError.classList.add("hidden");
+                    }
+                }
+            );
+
+            form.addEventListener("submit", function (event) {
+
+                const selected =
+                    specialiteSelect.options[
+                        specialiteSelect.selectedIndex
+                    ];
+
+                const nomSpecialite = selected
+                    ? selected.dataset.nom
+                    : "";
+
+                if (
+                    nomSpecialite === "informatique" &&
+                    !optionSelect.value
+                ) {
+                    event.preventDefault();
+
+                    optionError.textContent =
+                        "Veuillez choisir une option pour Informatique.";
+
+                    optionError.classList.remove("hidden");
+
+                    optionSelect.focus();
+                }
+            });
+
+            mettreAJourOptions();
+
+        });
+    </script>
+
+</body>
+</html>
+```

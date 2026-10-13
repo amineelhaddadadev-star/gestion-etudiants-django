@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Gestion Étudiants{% endblock %}</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        nav {
+            background: #1B4332;
+            padding: 20px 50px;
+        }
+
+        nav h2 {
+            color: white;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+
+        h1 {
+            color: #1B4332;
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #2D6A4F;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .btn:hover {
+            background: #1B4332;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <h2>Gestion Étudiants</h2>
+    </nav>
+
+    <div class="container">
+
+        {% block content %}
+        {% endblock %}
+
+    </div>
+
+</body>
+</html>
